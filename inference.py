@@ -4,7 +4,7 @@ import time
 import yaml
 import logging
 import torch
-import sys
+import pickle
 import os
 from torch.utils.data import DataLoader
 from model import build_model
@@ -85,15 +85,29 @@ def run_inference(cfg, args):
     # Combine batch embeddings
     embeddings = torch.concat(embeddings, dim=0)
     labels = torch.concat(labels, dim=0)
+
     # Create hash codes
-    hash_codes = get_hash(embeddings, method='lsh', length=64)
-    logging.info('Hash codes generated')
+    # hash_codes = get_hash(embeddings, method='lsh', length=64)
+    # logging.info('Hash codes generated')
 
     # Save embeddings, labels, and hashes (using numpy because of smaller files)
     logging.info(f'Saving {len(embeddings)} embeddings, labels, and hash_codes to {output_dir}')
     torch.save(embeddings, os.path.join(output_dir, 'embeddings.pt'))
     torch.save(labels, os.path.join(output_dir, 'labels.pt'))
-    torch.save(hash_codes, os.path.join(output_dir, 'hash_codes.pt'))
+    torch.save(dataset.latitudes, os.path.join(output_dir, 'latitudes.pt'))
+    torch.save(dataset.longitudes, os.path.join(output_dir, 'longitudes.pt'))
+
+    # Fix paths
+    urls = []
+    
+    prefix = "https://ryans-website-thing-public.s3.us-west-2.amazonaws.com/ForestNetDataset/"
+    postfix = "/images/visible/composite.png"
+    for path in dataset.paths:
+        urls.append(prefix + path + postfix)
+    with open(os.path.join(output_dir, 'urls.pkl'), "wb") as f:
+        pickle.dump(urls, f)
+
+    # torch.save(hash_codes, os.path.join(output_dir, 'hash_codes.pt'))
 
     logging.info('Files saved')
 

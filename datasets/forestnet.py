@@ -39,6 +39,9 @@ class ForestNet(Dataset):
         # Load file names and labels
         split_df = pd.read_csv(os.path.join(dataset_root, f'{split}.csv'))
         self.filenames = split_df['example_path'].values
+        self.latitudes = torch.from_numpy(split_df['latitude'].values)
+        self.longitudes = torch.from_numpy(split_df['longitude'].values)
+        self.paths = split_df.example_path
 
         if not merge_labels:
             self.labels = split_df['label'].values
