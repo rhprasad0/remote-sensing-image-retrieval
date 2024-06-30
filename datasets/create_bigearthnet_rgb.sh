@@ -29,9 +29,9 @@ function create_rgb_composite() {
 }
 export -f create_rgb_composite
 
-while IFS="," read -r s2name s1name
+while IFS="," read -r s2name 
 do
     # The -j flag is the number of cores you want to use
     parallel -j 12 create_rgb_composite ::: $s2name
 
-done < <(cut -d "," -f1 ./data/BigEarthNet/bigearthnet-test.csv)
+done < <(cut -d "," -f 1 ./data/BigEarthNet/bigearthnet-test.csv)
