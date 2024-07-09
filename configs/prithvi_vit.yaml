@@ -24,8 +24,7 @@ model:
     - 1291.6764008585435
     - 1154.505683480695
 dataset:
-  name: BigEarthNet
-  split: test
+  name: TampaNet
 dataloader:
   batch_size: 16
   num_workers: 4
