@@ -3,6 +3,8 @@
 TIF_PATH=/home/ryan/remote-sensing-image-retrieval/output/tiff
 PNG_PATH=/home/ryan/remote-sensing-image-retrieval/output/png
 SQS_URL=https://sqs.us-east-1.amazonaws.com/748757098892/Sentinel2
+CFG_PATH=/home/ryan/remote-sensing-image-retrieval/configs/prithvi_vit.yaml
+INFERENCE_SCRIPT_PATH=/home/ryan/remote-sensing-image-retrieval/inference_tampanet.py
 
 scene_name=$(aws sqs receive-message --queue-url $SQS_URL | jq -r '.Messages[0].Body' | jq -r '.Message' | jq -r '.name')
 receipt_handle=$(aws sqs receive-message --queue-url $SQS_URL | jq -r '.Messages[0].ReceiptHandle')
@@ -112,36 +114,70 @@ for row in {1..10}; do
 
     done
 done
-echo "Finished processing tile"
+echo "Finished tiling scene"
+echo ""
 
-echo "Generating statistics for inference"
+echo "Generating statistics for normalization"
 echo ""
 B02_mean=$(gdalinfo -stats -json ./*_B02.jp2 | jq -r .bands[0].mean)
 B02_std=$(gdalinfo -stats -json ./*_B02.jp2 | jq -r .bands[0].stdDev)
-echo $B02_mean
-echo $B02_std
 B03_mean=$(gdalinfo -stats -json ./*_B03.jp2 | jq -r .bands[0].mean)
 B03_std=$(gdalinfo -stats -json ./*_B03.jp2 | jq -r .bands[0].stdDev)
-echo $B03_mean
-echo $B03_std
 B04_mean=$(gdalinfo -stats -json ./*_B04.jp2 | jq -r .bands[0].mean)
 B04_std=$(gdalinfo -stats -json ./*_B04.jp2 | jq -r .bands[0].stdDev)
-echo $B04_mean
-echo $B04_std
 B8A_mean=$(gdalinfo -stats -json ./*_B8A.jp2 | jq -r .bands[0].mean)
 B8A_std=$(gdalinfo -stats -json ./*_B8A.jp2 | jq -r .bands[0].stdDev)
-echo $B8A_mean
-echo $B8A_std
 B11_mean=$(gdalinfo -stats -json ./*_B11.jp2 | jq -r .bands[0].mean)
 B11_std=$(gdalinfo -stats -json ./*_B11.jp2 | jq -r .bands[0].stdDev)
-echo $B11_mean
-echo $B11_std
 B12_mean=$(gdalinfo -stats -json ./*_B12.jp2 | jq -r .bands[0].mean)
 B12_std=$(gdalinfo -stats -json ./*_B12.jp2 | jq -r .bands[0].stdDev)
+
+echo "Means:"
+echo $B02_mean
+echo $B03_mean
+echo $B04_mean
+echo $B8A_mean
+echo $B11_mean
 echo $B12_mean
-echo $B12_std
 echo ""
-echo "Finished generating statistics for inference"
+echo "Standard Devations:"
+echo $B02_std
+echo $B03_std
+echo $B04_std
+echo $B8A_std
+echo $B11_std
+echo $B12_std
+
+echo ""
+echo "Finished generating statistics for normalization"
+
+# Insert means into config file
+sed -i "13s/.*/    - $B02_mean/" $CFG_PATH
+sed -i "14s/.*/    - $B03_mean/" $CFG_PATH
+sed -i "15s/.*/    - $B04_mean/" $CFG_PATH
+sed -i "16s/.*/    - $B8A_mean/" $CFG_PATH
+sed -i "17s/.*/    - $B11_mean/" $CFG_PATH
+sed -i "18s/.*/    - $B12_mean/" $CFG_PATH
+
+# Insert standard deviations into config file
+sed -i "20s/.*/    - $B02_std/" $CFG_PATH
+sed -i "21s/.*/    - $B03_std/" $CFG_PATH
+sed -i "22s/.*/    - $B04_std/" $CFG_PATH
+sed -i "23s/.*/    - $B8A_std/" $CFG_PATH
+sed -i "24s/.*/    - $B11_std/" $CFG_PATH
+sed -i "25s/.*/    - $B12_std/" $CFG_PATH
+echo ""
+echo "Updated config file with statistics"
+echo ""
+
+# Gimme embeddings plz >8-D
+echo "Generating embeddings"
+python $INFERENCE_SCRIPT_PATH -c $CFG_PATH
+echo "Finished generating embeddings"
+
+echo ""
+echo "*** SCENE PROCESSING COMPLETE ***"
+
 
 cd ~/remote-sensing-image-retrieval
 rm -r ./data/$scene_name.SAFE
