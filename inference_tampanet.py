@@ -14,13 +14,11 @@ from utils.hash_functions import get_hash
 
 output_path = os.getenv('OUTPUT_PATH', os.path.join('output', 'embeddings'))
 
-
 def run_inference(cfg, args):
-    # Create output dir (default: output_path/<model>/<dataset>/<split>)
+    # Create output dir (default: output_path/<model>/<dataset>/)
     output_dir = args.output_dir or os.path.join(output_path,
                                                  cfg['model']['name'],
-                                                 f"{cfg['dataset']['name']}{args.input_size or ''}",
-                                                 cfg['dataset']['split'])
+                                                 f"{cfg['dataset']['name']}{args.input_size or ''}")
     assert not os.path.isdir(output_dir) or len(os.listdir(output_dir)) == 0, \
         (f"Output directory already exists and is not empty ({output_dir}). "
          f"Specify the directory with --output_dir <path/to/output_dir>")
@@ -85,15 +83,13 @@ def run_inference(cfg, args):
     # Combine batch embeddings
     embeddings = torch.concat(embeddings, dim=0)
     # labels = torch.concat(labels, dim=0)
-    # Create hash codes
-    # hash_codes = get_hash(embeddings, method='lsh', length=64)
-    # logging.info('Hash codes generated')
 
-    # Save embeddings, labels, and hashes (using numpy because of smaller files)
-    logging.info(f'Saving {len(embeddings)} embeddings, labels, and hash_codes to {output_dir}')
+
+    # Save embeddings
+    logging.info(f'Saving {len(embeddings)} embeddings to {output_dir}')
     torch.save(embeddings, os.path.join(output_dir, 'embeddings.pt'))
     # torch.save(labels, os.path.join(output_dir, 'labels.pt'))
-    # torch.save(hash_codes, os.path.join(output_dir, 'hash_codes.pt'))
+
 
     logging.info('Files saved')
 
@@ -102,12 +98,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config_file', type=str, required=True, help='Path to config file')
     parser.add_argument('-o', '--output_dir', type=str, default=None,
-                        help='Path to output dir for embeddings and labels '
-                             '(default: output/embeddings/<model>/<dataset>/<split>)')
+                        help='Path to output dir for embeddings'
+                             '(default: output/embeddings/<model>/<dataset>)')
     parser.add_argument('-d', '--dataset', type=str,
                         help='Overwrite the dataset name in the config file')
-    parser.add_argument('-s', '--split', type=str,
-                        help='Overwrite the dataset split in the config file')
     parser.add_argument('--input_size', type=int,
                         help='Overwrite the size of the model input in the config file')
     parser.add_argument('--data_dir', type=str,
@@ -122,11 +116,9 @@ if __name__ == '__main__':
     with open(args.config_file, 'r') as f:
         cfg = yaml.safe_load(f)
 
-    # Overwrite dataset and split from optional args
+    # Overwrite dataset optional args
     if args.dataset:
         cfg['dataset']['name'] = args.dataset
-    if args.split:
-        cfg['dataset']['split'] = args.split
     if args.input_size:
         cfg['model']['img_size'] = args.input_size
 

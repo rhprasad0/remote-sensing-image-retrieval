@@ -15,7 +15,7 @@ from functools import partial
 from pathlib import Path
 from torchgeo.datasets.utils import sort_sentinel2_bands
 
-DATA_DIR = Path("/home/ryan/remote-sensing-image-retrieval/output/img")
+DATA_DIR = Path("/home/ryan/remote-sensing-image-retrieval/output/tiff")
 
 class TampaNet(Dataset):
     '''
@@ -121,4 +121,11 @@ def init_tampanet(bands, cfg, *args, **kwargs):
 
 # Add dataset to the registry
 # Using the six channels from Prithvi
+# 1 - B02 Blue
+# 2 - B03 Green
+# 3 - B04 Red
+# 8 - B8A Narrow NIR
+# 10 - B11 SWIR 1
+# 11 - B12 SWIR 2
 register_dataset('TampaNet', partial(init_tampanet, [1, 2, 3, 8, 10, 11]))
+
