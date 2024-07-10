@@ -2,10 +2,11 @@
 
 TIF_PATH=/home/ryan/remote-sensing-image-retrieval/output/tiff
 PNG_PATH=/home/ryan/remote-sensing-image-retrieval/output/png
+SQS_URL=https://sqs.us-east-1.amazonaws.com/748757098892/Sentinel2
 
-scene_name=$(aws sqs receive-message --queue-url https://sqs.us-east-1.amazonaws.com/748757098892/Sentinel2 | jq -r '.Messages[0].Body' | jq -r '.Message' | jq -r '.name')
-receipt_handle=$(aws sqs receive-message --queue-url https://sqs.us-east-1.amazonaws.com/748757098892/Sentinel2 | jq -r '.Messages[0].ReceiptHandle')
-aws sqs delete-message --queue-url https://sqs.us-east-1.amazonaws.com/748757098892/Sentinel2 --receipt-handle $receipt_handle
+scene_name=$(aws sqs receive-message --queue-url $SQS_URL | jq -r '.Messages[0].Body' | jq -r '.Message' | jq -r '.name')
+receipt_handle=$(aws sqs receive-message --queue-url $SQS_URL | jq -r '.Messages[0].ReceiptHandle')
+aws sqs delete-message --queue-url $SQS_URL --receipt-handle $receipt_handle
 echo "Grabbed S2 scene name from queue"
 
 tile=${scene_name: -22}
@@ -20,6 +21,8 @@ echo "Unzipped scene"
 
 cd ./$scene_name.SAFE/GRANULE/L1C_*/IMG_DATA
 
+rm -r $PNG_PATH
+rm -r $TIF_PATH
 mkdir -p $PNG_PATH
 mkdir -p $TIF_PATH
 

@@ -7,7 +7,7 @@ from torchvision import transforms
 def load_dataset(cfg):
     # load settings from cfg
     dataset_name = cfg['dataset']['name']
-    logging.info(f"Load dataset {dataset_name} ({cfg['dataset']['split']} split)")
+    logging.info(f"Load dataset {dataset_name}")
     assert dataset_name in DATASET_REGISTRY, (f"Dataset {dataset_name} not registered. "
                                               f"Select a dataset from {DATASET_REGISTRY.keys()} ")
     # get dataset fc from registry
