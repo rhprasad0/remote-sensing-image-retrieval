@@ -21,11 +21,14 @@ echo "Unzipped scene"
 
 cd ./$scene_name.SAFE/GRANULE/L1C_*/IMG_DATA
 
+# Old stuff must be nuked prior to inference
 rm -r $PNG_PATH
 rm -r $TIF_PATH
 mkdir -p $PNG_PATH
 mkdir -p $TIF_PATH
+echo "Removed outputs from previous run"
 
+echo "Splitting scene into tiles..."
 for row in {1..10}; do
     for col in {1..10}; do       
         mkdir -p $TIF_PATH/${tile}_${row}_${col}
@@ -109,8 +112,36 @@ for row in {1..10}; do
 
     done
 done
-
 echo "Finished processing tile"
+
+echo "Generating statistics for inference"
+echo ""
+B02_mean=$(gdalinfo -stats -json ./*_B02.jp2 | jq -r .bands[0].mean)
+B02_std=$(gdalinfo -stats -json ./*_B02.jp2 | jq -r .bands[0].stdDev)
+echo $B02_mean
+echo $B02_std
+B03_mean=$(gdalinfo -stats -json ./*_B03.jp2 | jq -r .bands[0].mean)
+B03_std=$(gdalinfo -stats -json ./*_B03.jp2 | jq -r .bands[0].stdDev)
+echo $B03_mean
+echo $B03_std
+B04_mean=$(gdalinfo -stats -json ./*_B04.jp2 | jq -r .bands[0].mean)
+B04_std=$(gdalinfo -stats -json ./*_B04.jp2 | jq -r .bands[0].stdDev)
+echo $B04_mean
+echo $B04_std
+B8A_mean=$(gdalinfo -stats -json ./*_B8A.jp2 | jq -r .bands[0].mean)
+B8A_std=$(gdalinfo -stats -json ./*_B8A.jp2 | jq -r .bands[0].stdDev)
+echo $B8A_mean
+echo $B8A_std
+B11_mean=$(gdalinfo -stats -json ./*_B11.jp2 | jq -r .bands[0].mean)
+B11_std=$(gdalinfo -stats -json ./*_B11.jp2 | jq -r .bands[0].stdDev)
+echo $B11_mean
+echo $B11_std
+B12_mean=$(gdalinfo -stats -json ./*_B12.jp2 | jq -r .bands[0].mean)
+B12_std=$(gdalinfo -stats -json ./*_B12.jp2 | jq -r .bands[0].stdDev)
+echo $B12_mean
+echo $B12_std
+echo ""
+echo "Finished generating statistics for inference"
 
 cd ~/remote-sensing-image-retrieval
 rm -r ./data/$scene_name.SAFE
