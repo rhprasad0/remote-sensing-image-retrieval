@@ -2,14 +2,15 @@
 
 TIF_PATH=/home/ryan/remote-sensing-image-retrieval/output/tiff
 PNG_PATH=/home/ryan/remote-sensing-image-retrieval/output/png
-SQS_URL=https://sqs.us-east-1.amazonaws.com/748757098892/Sentinel2
 CFG_PATH=/home/ryan/remote-sensing-image-retrieval/configs/prithvi_vit.yaml
 INFERENCE_SCRIPT_PATH=/home/ryan/remote-sensing-image-retrieval/inference_tampanet.py
 
+# Grab S2 scene name from AWS. SQS_URL is set in .env file (not in repo)
 scene_name=$(aws sqs receive-message --queue-url $SQS_URL | jq -r '.Messages[0].Body' | jq -r '.Message' | jq -r '.name')
 receipt_handle=$(aws sqs receive-message --queue-url $SQS_URL | jq -r '.Messages[0].ReceiptHandle')
 aws sqs delete-message --queue-url $SQS_URL --receipt-handle $receipt_handle
 echo "Grabbed S2 scene name from queue"
+echo "Scene name: ${scene_name}"
 
 tile=${scene_name: -22}
 
@@ -42,6 +43,13 @@ for row in {1..10}; do
         gdal_translate -srcwin $row_offset $col_offset 120 120 \
             ./*_B02.jp2 \
             $TIF_PATH/${tile}_${row}_${col}/${tile}_${row}_${col}_B02.tif
+
+            # Check to see if there is data. If not, skip this tile. 
+            if [ $(gdalinfo -stats -json $TIF_PATH/${tile}_${row}_${col}/${tile}_${row}_${col}_B02.tif | jq -r .bands[0].minimum) = 0 ]; then
+                rm -r $TIF_PATH/${tile}_${row}_${col}
+                echo "*** SKIPPED NODATA TILE ***"
+                continue
+            fi
 
         gdal_translate -srcwin $row_offset $col_offset 120 120 \
             ./*_B03.jp2 \
@@ -115,10 +123,10 @@ for row in {1..10}; do
     done
 done
 echo "Finished tiling scene"
-echo ""
+echo
 
 echo "Generating statistics for normalization"
-echo ""
+echo
 B02_mean=$(gdalinfo -stats -json ./*_B02.jp2 | jq -r .bands[0].mean)
 B02_std=$(gdalinfo -stats -json ./*_B02.jp2 | jq -r .bands[0].stdDev)
 B03_mean=$(gdalinfo -stats -json ./*_B03.jp2 | jq -r .bands[0].mean)
@@ -139,7 +147,7 @@ echo $B04_mean
 echo $B8A_mean
 echo $B11_mean
 echo $B12_mean
-echo ""
+echo
 echo "Standard Devations:"
 echo $B02_std
 echo $B03_std
@@ -148,7 +156,7 @@ echo $B8A_std
 echo $B11_std
 echo $B12_std
 
-echo ""
+echo
 echo "Finished generating statistics for normalization"
 
 # Insert means into config file
@@ -166,18 +174,23 @@ sed -i "22s/.*/    - $B04_std/" $CFG_PATH
 sed -i "23s/.*/    - $B8A_std/" $CFG_PATH
 sed -i "24s/.*/    - $B11_std/" $CFG_PATH
 sed -i "25s/.*/    - $B12_std/" $CFG_PATH
-echo ""
+echo
 echo "Updated config file with statistics"
-echo ""
+echo
 
-# Gimme embeddings plz >8-D
-echo "Generating embeddings"
-python $INFERENCE_SCRIPT_PATH -c $CFG_PATH
-echo "Finished generating embeddings"
+# Check to see if there is data. If not, do not run inference
+if [ $(ls $TIF_PATH | wc -l) = 0 ]; 
+    then
+        echo "*** NO DATA: SKIPPING INFERENCE ***"
+    else
+        # Gimme embeddings plz >8-D
+        echo "Generating embeddings"
+        python $INFERENCE_SCRIPT_PATH -c $CFG_PATH
+        echo "Finished generating embeddings"
+fi
 
-echo ""
+echo
 echo "*** SCENE PROCESSING COMPLETE ***"
-
 
 cd ~/remote-sensing-image-retrieval
 rm -r ./data/$scene_name.SAFE
