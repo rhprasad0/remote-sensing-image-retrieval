@@ -4,13 +4,25 @@ TIF_PATH=/home/ryan/remote-sensing-image-retrieval/output/tiff
 PNG_PATH=/home/ryan/remote-sensing-image-retrieval/output/png
 CFG_PATH=/home/ryan/remote-sensing-image-retrieval/configs/prithvi_vit.yaml
 INFERENCE_SCRIPT_PATH=/home/ryan/remote-sensing-image-retrieval/inference_tampanet.py
+LOCAL_METADATA_PATH=/home/ryan/remote-sensing-image-retrieval/data/metadata.xml
 
 # Grab S2 scene name from AWS. SQS_URL is set in .env file (not in repo)
 scene_name=$(aws sqs receive-message --queue-url $SQS_URL | jq -r '.Messages[0].Body' | jq -r '.Message' | jq -r '.name')
-receipt_handle=$(aws sqs receive-message --queue-url $SQS_URL | jq -r '.Messages[0].ReceiptHandle')
-aws sqs delete-message --queue-url $SQS_URL --receipt-handle $receipt_handle
 echo "Grabbed S2 scene name from queue"
 echo "Scene name: ${scene_name}"
+
+# Grab the scene metadata
+scene_path_raw=$(aws sqs receive-message --queue-url $SQS_URL | jq -r '.Messages[0].Body' | jq -r '.Message' | jq -r .tiles[0].datastrip.path)
+trimmed_path=${scene_path_raw%/*/*}
+metadata_path="s3://sentinel-s2-l1c/${trimmed_path}/metadata.xml"
+aws s3 cp --request-payer requester $metadata_path $LOCAL_METADATA_PATH
+
+# Parse out the cloud coverage metric
+cloud_coverage=$(xmllint --xpath '//Cloud_Coverage_Assessment/text()' $LOCAL_METADATA_PATH)
+echo $cloud_coverage
+rm $LOCAL_METADATA_PATH
+receipt_handle=$(aws sqs receive-message --queue-url $SQS_URL | jq -r '.Messages[0].ReceiptHandle')
+aws sqs delete-message --queue-url $SQS_URL --receipt-handle $receipt_handle
 
 tile=${scene_name: -22}
 
