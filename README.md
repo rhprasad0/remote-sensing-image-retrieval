@@ -1,7 +1,11 @@
-## Ryan's fork of IBM's Remote sensing image retrieval
-This here be my sandbox. Ping me with questions.
+## Sentinel 2 -> Pinecone Imagery Pipeline
+![Diagram](./pipeline.drawio.png)
 
-In the pgvector folder are the scripts used to load the embeddings into Postgres. You will need PostGIS + pgvector for these to work.
+You will need an AWS account for this to work, and there are some additional packages to install on top of the RSIR installation. A newer version of GDAL is also needed.
+
+The pipeline is in `pipeline.sh` and the inference takes place in `inference_tampanet.py`.
+
+Please reach out with questions.
 
 ## Citation
 
@@ -12,4 +16,18 @@ In the pgvector folder are the scripts used to load the embeddings into Postgres
   journal={arXiv preprint arXiv:2403.02059},
   year={2024}
 }
+
+@misc{clasen2024rebenrefinedbigearthnetdataset,
+      title={reBEN: Refined BigEarthNet Dataset for Remote Sensing Image Analysis}, 
+      author={Kai Norman Clasen and Leonard Hackel and Tom Burgert and Gencer Sumbul and Begüm Demir and Volker Markl},
+      year={2024},
+      eprint={2407.03653},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2407.03653}, 
+}
+
+Rouault, E., Warmerdam, F., Schwehr, K., Kiselev, A., Butler, H., Łoskot, M., Szekeres, T., Tourigny, E., Landa, M., Miara, I., Elliston, B., Chaitanya, K., Plesea, L., Morissette, D., Jolma, A., Dawson, N., Baston, D., de Stigter, C., & Miura, H. (2024). GDAL (v3.9.1). Zenodo. https://doi.org/10.5281/zenodo.12545688
 ```
+
+
