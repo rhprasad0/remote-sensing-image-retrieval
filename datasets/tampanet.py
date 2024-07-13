@@ -93,7 +93,13 @@ class TampaNet(Dataset):
             data at that index
         """
         image = self._load_image(index)
-        sample: dict[str, Tensor] = {"image": image}
+        path_to_B01 = Path(self._load_paths(index)[0])
+        name = path_to_B01.parent.name
+
+        sample = {
+            "image": image,
+            "name": name
+        }
 
         if self.transforms is not None:
             sample = self.transforms(sample)
