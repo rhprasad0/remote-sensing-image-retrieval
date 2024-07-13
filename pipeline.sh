@@ -18,11 +18,25 @@ metadata_path="s3://sentinel-s2-l1c/${trimmed_path}/metadata.xml"
 aws s3 cp --request-payer requester $metadata_path $LOCAL_METADATA_PATH
 
 # Parse out the cloud coverage metric
-cloud_coverage=$(xmllint --xpath '//Cloud_Coverage_Assessment/text()' $LOCAL_METADATA_PATH)
-echo $cloud_coverage
+cloud_coverage_decimal=$(xmllint --xpath '//Cloud_Coverage_Assessment/text()' $LOCAL_METADATA_PATH)
+snow_coverage_decimal=$(xmllint --xpath '//Snow_Coverage_Assessment/text()' $LOCAL_METADATA_PATH)
+cloud_coverage_integer=$(echo "$cloud_coverage_decimal / 1" | bc)
+snow_coverage_integer=$(echo "$snow_coverage_decimal / 1" | bc)
+echo "Cloud Coverage: ${cloud_coverage_integer}"
+echo "Snow Coverage: ${snow_coverage_integer}"
+
 rm $LOCAL_METADATA_PATH
 receipt_handle=$(aws sqs receive-message --queue-url $SQS_URL | jq -r '.Messages[0].ReceiptHandle')
 aws sqs delete-message --queue-url $SQS_URL --receipt-handle $receipt_handle
+echo "Removed scene from queue"
+
+if [[ $cloud_coverage_integer -gt 20 ]] || [[ $snow_coverage_integer -gt 20 ]]; then
+    echo "Scene too cloudy or snowy"
+    # continue
+    exit 1
+else
+    echo "Scene not too cloudy or snowy"
+fi
 
 tile=${scene_name: -22}
 
