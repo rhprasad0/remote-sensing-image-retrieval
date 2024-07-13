@@ -4,13 +4,12 @@ import time
 import yaml
 import logging
 import torch
-import sys
+import pickle
 import os
 from torch.utils.data import DataLoader
 from model import build_model
 from datasets import load_dataset
 from datetime import datetime, timezone, timedelta
-from utils.hash_functions import get_hash
 
 output_path = os.getenv('OUTPUT_PATH', os.path.join('output', 'embeddings'))
 
@@ -19,9 +18,9 @@ def run_inference(cfg, args):
     output_dir = args.output_dir or os.path.join(output_path,
                                                  cfg['model']['name'],
                                                  f"{cfg['dataset']['name']}{args.input_size or ''}")
-    assert not os.path.isdir(output_dir) or len(os.listdir(output_dir)) == 0, \
-        (f"Output directory already exists and is not empty ({output_dir}). "
-         f"Specify the directory with --output_dir <path/to/output_dir>")
+    # assert not os.path.isdir(output_dir) or len(os.listdir(output_dir)) == 0, \
+    #     (f"Output directory already exists and is not empty ({output_dir}). "
+    #      f"Specify the directory with --output_dir <path/to/output_dir>")
     os.makedirs(output_dir, exist_ok=True)
 
     logging.info(f"Running inference with model {cfg['model']['name']} for dataset {cfg['dataset']['name']}.")
@@ -46,8 +45,7 @@ def run_inference(cfg, args):
     model.eval()
     logging.info('Model loaded')
 
-    embeddings = []
-    # labels = []
+    embedding_tuples = []
     time_start = time.time()
     num_batches = len(data_loader)
     i = 0
@@ -57,15 +55,15 @@ def run_inference(cfg, args):
     for batch in data_loader:
         # Load input
         input = batch['image']
-        # label = batch['label']
+        names = batch['name']
+        
         input = input.to(device)
 
         # Compute model embedding
         with torch.no_grad():
-            embedding = model(input)
+            embeddings = model(input)
 
-        embeddings.append(embedding.cpu())
-        # labels.append(label)
+        embedding_tuples.extend(zip(names, embeddings))
 
         # Log progress
         i += 1
@@ -81,15 +79,18 @@ def run_inference(cfg, args):
     logging.info(f'Average inference time: {sample_speed:.4f} s/sample')
 
     # Combine batch embeddings
-    embeddings = torch.concat(embeddings, dim=0)
+    # embeddings = torch.concat(embeddings, dim=0)
     # labels = torch.concat(labels, dim=0)
 
 
     # Save embeddings
-    logging.info(f'Saving {len(embeddings)} embeddings to {output_dir}')
-    torch.save(embeddings, os.path.join(output_dir, 'embeddings.pt'))
+    # logging.info(f'Saving {len(embeddings)} embeddings to {output_dir}')
+    # torch.save(embeddings, os.path.join(output_dir, 'embeddings.pt'))
     # torch.save(labels, os.path.join(output_dir, 'labels.pt'))
 
+    with open(os.path.join(output_dir, 'embeddings.pkl'), 'wb') as file:
+        pickle.dump(embedding_tuples, file)
+    logging.info(f'Saving {len(embedding_tuples)} embeddings to {output_dir}')
 
     logging.info('Files saved')
 
