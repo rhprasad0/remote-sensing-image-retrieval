@@ -1,9 +1,9 @@
 ## Sentinel 2 -> Pinecone Imagery Pipeline
-![Diagram](./pipeline.drawio.png)
+![Diagram](./pinecone.drawio.png)
 
 You will need an AWS account for this to work, and there are some additional packages to install on top of the RSIR installation. 
 
-A newer version of GDAL is needed. JQ, BC and others as well.
+A newer version of GDAL is needed. JQ, BC, Pinecone and others as well.
 
 If you are running Ubuntu, use the [UbuntuGIS Unstable PPA](https://launchpad.net/~ubuntugis/+archive/ubuntu/ubuntugis-unstable) to install GDAL prior to running `sudo apt-get install GDAL` and grabbing an old version.
 

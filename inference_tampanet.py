@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from model import build_model
 from datasets import load_dataset
 from datetime import datetime, timezone, timedelta
+from pinecone import Pinecone
 
 output_path = os.getenv('OUTPUT_PATH', os.path.join('output', 'embeddings'))
 
@@ -78,17 +79,25 @@ def run_inference(cfg, args):
     sample_speed =  (time.time() - time_start) / (i * batch_size)
     logging.info(f'Average inference time: {sample_speed:.4f} s/sample')
 
-    # Combine batch embeddings
-    # embeddings = torch.concat(embeddings, dim=0)
-    # labels = torch.concat(labels, dim=0)
+    time_start = time.time()
 
+    # Upsert into Pinecone
+    pinecone_api_key = os.environ.get("PINECONE_API_KEY") # Pulling this from .env
+    pc = Pinecone(pinecone_api_key)
+    index = pc.Index("sentinel2")
 
-    # Save embeddings
-    # logging.info(f'Saving {len(embeddings)} embeddings to {output_dir}')
-    # torch.save(embeddings, os.path.join(output_dir, 'embeddings.pt'))
-    # torch.save(labels, os.path.join(output_dir, 'labels.pt'))
+    vectors=[]
+    for name, embedding in embedding_tuples:
+        vectors.append(
+            {"id": name, "values":embedding}
+        )
+    index.upsert(vectors)
 
-    with open(os.path.join(output_dir, 'embeddings.pkl'), 'wb') as file:
+    logging.info(f'{len(embedding_tuples)} embeddings upserted into Pinecone. Took {(time.time() - time_start):.4f} s')
+
+    scene_name = embedding_tuples[0][0][:-4] 
+
+    with open(os.path.join(output_dir, f'{scene_name}.pkl'), 'wb') as file:
         pickle.dump(embedding_tuples, file)
     logging.info(f'Saving {len(embedding_tuples)} embeddings to {output_dir}')
 
