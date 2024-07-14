@@ -11,6 +11,9 @@ from model import build_model
 from datasets import load_dataset
 from datetime import datetime, timezone, timedelta
 from pinecone import Pinecone
+from dotenv import load_dotenv
+
+load_dotenv()
 
 output_path = os.getenv('OUTPUT_PATH', os.path.join('output', 'embeddings'))
 
@@ -22,7 +25,7 @@ def run_inference(cfg, args):
     # assert not os.path.isdir(output_dir) or len(os.listdir(output_dir)) == 0, \
     #     (f"Output directory already exists and is not empty ({output_dir}). "
     #      f"Specify the directory with --output_dir <path/to/output_dir>")
-    os.makedirs(output_dir, exist_ok=True)
+    # os.makedirs(output_dir, exist_ok=True)
 
     logging.info(f"Running inference with model {cfg['model']['name']} for dataset {cfg['dataset']['name']}.")
     # Init dataset
@@ -82,7 +85,7 @@ def run_inference(cfg, args):
     time_start = time.time()
 
     # Upsert into Pinecone
-    pinecone_api_key = os.environ.get("PINECONE_API_KEY") # Pulling this from .env
+    pinecone_api_key = os.getenv("PINECONE_API_KEY") # Pulling this from .env
     pc = Pinecone(pinecone_api_key)
     index = pc.Index("sentinel2")
 
@@ -93,16 +96,7 @@ def run_inference(cfg, args):
         )
     index.upsert(vectors)
 
-    logging.info(f'{len(embedding_tuples)} embeddings upserted into Pinecone. Took {(time.time() - time_start):.4f} s')
-
-    scene_name = embedding_tuples[0][0][:-4] 
-
-    with open(os.path.join(output_dir, f'{scene_name}.pkl'), 'wb') as file:
-        pickle.dump(embedding_tuples, file)
-    logging.info(f'Saving {len(embedding_tuples)} embeddings to {output_dir}')
-
-    logging.info('Files saved')
-
+    logging.info(f'*** {len(embedding_tuples)} embeddings upserted into Pinecone. Took {(time.time() - time_start):.4f} s ***')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
