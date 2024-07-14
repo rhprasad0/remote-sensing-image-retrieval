@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2024-07-14T01:26:42.074Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0" etag="zatmujs6DtAjVvTOxwxW" version="24.6.5" type="device">
+<mxfile host="app.diagrams.net" modified="2024-07-14T22:29:55.260Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0" etag="qCPvN_q6s1KEZa7ChV85" version="24.6.5" type="device">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
-    <mxGraphModel dx="784" dy="1135" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="0" shadow="0">
+    <mxGraphModel dx="2066" dy="1145" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="0" shadow="0">
       <root>
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
@@ -60,7 +60,7 @@
         <mxCell id="SdMWiJtV8BzjuywiQybZ-8" value="Create GeoTIFFs,&lt;div&gt;RGB PNGs, GeoJSONs&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
           <mxGeometry x="321" y="650" width="120" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="O3UuLxE54aFfJe71QTyP-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fillColor=#f8cecc;strokeColor=#b85450;" parent="WIyWlLk6GJQsqaUBKTNV-1" source="SdMWiJtV8BzjuywiQybZ-12" target="WIyWlLk6GJQsqaUBKTNV-3" edge="1">
+        <mxCell id="O3UuLxE54aFfJe71QTyP-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" source="SdMWiJtV8BzjuywiQybZ-12" target="WIyWlLk6GJQsqaUBKTNV-3" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="381" y="1150" as="targetPoint" />
             <Array as="points">
@@ -70,18 +70,13 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="EuW9K-OmFfAHbedRkH96-0" value="&lt;font color=&quot;#ff3333&quot; style=&quot;font-size: 15px;&quot;&gt;&lt;b style=&quot;&quot;&gt;TODO:&lt;/b&gt;&lt;/font&gt;&lt;div style=&quot;font-size: 15px;&quot;&gt;&lt;font color=&quot;#ff3333&quot; style=&quot;font-size: 15px;&quot;&gt;&lt;b style=&quot;&quot;&gt;USE A WHILE LOOP&lt;br&gt;&amp;nbsp;UNTIL QUEUE IS EMPTY&amp;nbsp;&lt;/b&gt;&lt;/font&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="O3UuLxE54aFfJe71QTyP-18">
-          <mxGeometry x="0.2286" y="-3" relative="1" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
         <mxCell id="SdMWiJtV8BzjuywiQybZ-10" value="Generate vector embeddings" style="whiteSpace=wrap;html=1;rounded=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
           <mxGeometry x="321" y="910" width="120" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="SdMWiJtV8BzjuywiQybZ-12" value="TODO: Upsert embeddings into Pinecone" style="whiteSpace=wrap;html=1;rounded=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+        <mxCell id="SdMWiJtV8BzjuywiQybZ-12" value="Upsert embeddings into Pinecone" style="whiteSpace=wrap;html=1;rounded=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
           <mxGeometry x="321" y="1010" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="SdMWiJtV8BzjuywiQybZ-14" value="TODO: Upload RGB PNGs + GeoJSONs to S3" style="whiteSpace=wrap;html=1;rounded=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+        <mxCell id="SdMWiJtV8BzjuywiQybZ-14" value="Upload RGB PNGs + GeoJSONs to S3" style="whiteSpace=wrap;html=1;rounded=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
           <mxGeometry x="469" y="1010" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="SdMWiJtV8BzjuywiQybZ-16" value="&lt;h1&gt;&lt;b&gt;Sentinel-2&amp;nbsp;&amp;nbsp;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;/span&gt;Pinecone&lt;br&gt;&lt;/b&gt;&lt;b&gt;Imagery Pipeline&lt;/b&gt;&lt;/h1&gt;" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
@@ -117,7 +112,7 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="zFf3xXaIBMx__n7ub1SH-4" value="&amp;lt; 20%&lt;div&gt;Cloud?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;rounded=1;glass=0;strokeWidth=1;shadow=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+        <mxCell id="zFf3xXaIBMx__n7ub1SH-4" value="&amp;lt; 5%&lt;div&gt;Cloud?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;rounded=1;glass=0;strokeWidth=1;shadow=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
           <mxGeometry x="340" y="250" width="80" height="80" as="geometry" />
         </mxCell>
         <mxCell id="zFf3xXaIBMx__n7ub1SH-12" value="nodata / skip&amp;nbsp;" style="ellipse;whiteSpace=wrap;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
