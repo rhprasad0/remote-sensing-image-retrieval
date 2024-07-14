@@ -60,8 +60,8 @@ mkdir -p $TIF_PATH
 echo "Removed outputs from previous run"
 
 echo "Splitting scene into tiles..."
-for row in {1..10}; do
-    for col in {1..10}; do       
+for row in {1..90}; do
+    for col in {1..90}; do       
         mkdir -p $TIF_PATH/${tile}_${row}_${col}
         
         # 10m bands
