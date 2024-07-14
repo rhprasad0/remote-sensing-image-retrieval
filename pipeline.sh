@@ -1,10 +1,12 @@
 #!/bin/bash
+source .env
 
 TIF_PATH=/home/ryan/remote-sensing-image-retrieval/output/tiff
 PNG_PATH=/home/ryan/remote-sensing-image-retrieval/output/png
 CFG_PATH=/home/ryan/remote-sensing-image-retrieval/configs/prithvi_vit.yaml
 INFERENCE_SCRIPT_PATH=/home/ryan/remote-sensing-image-retrieval/inference_tampanet.py
 LOCAL_METADATA_PATH=/home/ryan/remote-sensing-image-retrieval/data/metadata.xml
+S3_PATH=s3://ryans-website-thing-public/s2pinecone/
 
 # Grab S2 scene name from AWS. SQS_URL is set in .env file (not in repo)
 scene_name=$(aws sqs receive-message --queue-url $SQS_URL | jq -r '.Messages[0].Body' | jq -r '.Message' | jq -r '.name')
@@ -212,7 +214,12 @@ if [ $(ls $TIF_PATH | wc -l) = 0 ];
         # Gimme embeddings plz >8-D
         echo "Generating embeddings"
         python $INFERENCE_SCRIPT_PATH -c $CFG_PATH
-        echo "Finished generating embeddings"
+        echo "Upserted embeddings into Pinecone"
+        echo
+
+        echo "Uploading PNGs + GeoJSON to S3"
+        aws s3 cp $PNG_PATH $S3_PATH --recursive
+        echo "Finished uploading PNGs + GeoJSON to S3"
 fi
 
 echo
